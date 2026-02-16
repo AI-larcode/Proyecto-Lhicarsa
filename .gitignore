@@ -5,6 +5,7 @@
 dataset_ruedas.csv
 *.zip
 Lhicarsa_imagenes/
+resultados/
 
 # Python cache
 __pycache__/
