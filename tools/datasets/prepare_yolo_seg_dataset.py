@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import logging
 import random
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -28,6 +29,16 @@ import cv2
 logger = logging.getLogger("prepare_yolo_seg_dataset")
 
 IMG_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}
+
+_FNAME_VIEW_RE = re.compile(r"_(?P<view>Frontal|Izq|Der)_", re.IGNORECASE)
+
+
+def _matches_view(image_path: Path, view_filter: str | None) -> bool:
+    """Devuelve True si la imagen coincide con el filtro de vista (o no hay filtro)."""
+    if not view_filter:
+        return True
+    m = _FNAME_VIEW_RE.search(image_path.stem)
+    return m is not None and m.group("view").casefold() == view_filter.casefold()
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -118,6 +129,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--masks", type=Path, required=True, help="Directorio con máscaras *_mask.png.")
     p.add_argument("--output", type=Path, required=True, help="Directorio de salida del dataset YOLO.")
     p.add_argument("--recursive", action="store_true")
+    p.add_argument("--view", type=str, default="Frontal",
+                   help="Incluir solo imágenes de esta vista (Frontal/Izq/Der). "
+                        "Por defecto solo se incluyen imágenes frontales.")
     p.add_argument("--val-ratio", type=float, default=0.15)
     p.add_argument("--test-ratio", type=float, default=0.10)
     p.add_argument("--seed", type=int, default=0)
@@ -132,6 +146,10 @@ def main(argv: list[str] | None = None) -> int:
     setup_logging(args.verbose)
 
     image_paths = iter_images(args.images, recursive=args.recursive)
+    if args.view:
+        before = len(image_paths)
+        image_paths = [p for p in image_paths if _matches_view(p, args.view)]
+        logger.info("Filtro de vista '%s': %d → %d imágenes.", args.view, before, len(image_paths))
     items: list[tuple[Path, Path]] = []
     for image_path in image_paths:
         mask_path = find_mask(args.masks, image_path)

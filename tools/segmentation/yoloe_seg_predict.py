@@ -625,6 +625,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--iou",     type=float, default=0.45)
     p.add_argument("--device",  type=str,  default="auto")
     p.add_argument("--recursive", action="store_true")
+    p.add_argument("--view", type=str, default="Frontal",
+                   help="Procesar solo imágenes de esta vista (Frontal/Izq/Der). "
+                        "Por defecto solo se procesan imágenes frontales.")
     p.add_argument("--retina-masks",   dest="retina", action="store_true",  default=True)
     p.add_argument("--no-retina-masks", dest="retina", action="store_false")
     p.add_argument("--no-overlay", dest="save_overlay", action="store_false", default=True)
@@ -671,6 +674,13 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     images = list(iter_images(args.source, recursive=args.recursive))
+    if args.view:
+        before = len(images)
+        images = [
+            p for p in images
+            if (m := _FNAME_RE_CON_VISTA.search(p.stem)) and m.group("view").casefold() == args.view.casefold()
+        ]
+        logger.info("Filtro de vista '%s': %d → %d imágenes.", args.view, before, len(images))
     if not images:
         logger.error("No se encontraron imágenes en %s", args.source); return 1
     logger.info("Imágenes a procesar: %d", len(images))

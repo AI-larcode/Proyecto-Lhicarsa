@@ -3,6 +3,7 @@
 
 # Archivos de datos, modelos y artefactos (ignorados por peso/privacidad)
 data/images/
+data/datasets/
 data/feedback/
 data/tabular/
 artifacts/
@@ -11,6 +12,9 @@ models/base/
 models/classification/
 *.zip
 
+# Pesos sueltos en la raíz del proyecto
+/*.pt
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -18,3 +22,4 @@ __pycache__/
 # Otros
 .DS_Store
 .ipynb_checkpoints/
+.claude

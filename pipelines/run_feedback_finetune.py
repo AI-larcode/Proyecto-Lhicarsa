@@ -41,6 +41,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     p.add_argument("--feedback-dir", type=Path, default=REPO_ROOT / "data" / "feedback" / "humano")
     p.add_argument("--dataset-output", type=Path, default=REPO_ROOT / "data" / "datasets" / "feedback_ruedas")
+    p.add_argument("--view", type=str, default="Frontal",
+                   help="Incluir solo correcciones de esta vista (Frontal/Izq/Der). "
+                        "Por defecto solo se usan imágenes frontales.")
     p.add_argument("--model", type=str, required=True,
                    help="Modelo base o best.pt sobre el que continuar el entrenamiento.")
     p.add_argument("--epochs", type=int, default=30)
@@ -68,6 +71,7 @@ def main(argv: list[str] | None = None) -> int:
             "--feedback-dir", str(args.feedback_dir),
             "--output", str(args.dataset_output),
             "--seed", str(args.seed),
+            *(["--view", args.view] if args.view else []),
             *(["--copy-images"] if args.copy_images else []),
         ],
         root,

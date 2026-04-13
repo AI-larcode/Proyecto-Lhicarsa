@@ -320,8 +320,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                    help="CSV generado por yoloe_seg_predict.py --features")
     p.add_argument("--output", type=Path, default=REPO_ROOT / "models" / "classification" / "modelo_revision.joblib",
                    help="Ruta del clasificador final (joblib).")
-    p.add_argument("--view", type=str, default=None,
-                   help="Filtrar a una sola vista (Frontal/Izq/Der).")
+    p.add_argument("--view", type=str, default="Frontal",
+                   help="Filtrar a una sola vista (Frontal/Izq/Der). "
+                        "Por defecto solo se usan imágenes frontales.")
     p.add_argument("--drop-view", action="append", default=[],
                    help="Vista(s) a excluir (puede repetirse).")
     p.add_argument("--one-hot-view", action="store_true",

@@ -12,6 +12,7 @@ import argparse
 import json
 import logging
 import random
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -20,6 +21,17 @@ import cv2
 
 logger = logging.getLogger("prepare_feedback_dataset")
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+_FNAME_VIEW_RE = re.compile(r"_(?P<view>Frontal|Izq|Der)_", re.IGNORECASE)
+
+
+def _entry_matches_view(entry: dict, view_filter: str | None) -> bool:
+    """Devuelve True si la entrada del manifest coincide con el filtro de vista."""
+    if not view_filter:
+        return True
+    image_name = entry.get("image", "")
+    m = _FNAME_VIEW_RE.search(image_name)
+    return m is not None and m.group("view").casefold() == view_filter.casefold()
 
 
 def resolve_repo_path(path_str: str | None) -> Path | None:
@@ -120,6 +132,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     p.add_argument("--feedback-dir", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--view", type=str, default="Frontal",
+                   help="Incluir solo correcciones de esta vista (Frontal/Izq/Der). "
+                        "Por defecto solo se incluyen imágenes frontales.")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--val-ratio", type=float, default=0.2)
     p.add_argument("--copy-images", action="store_true")
@@ -132,7 +147,12 @@ def main(argv: list[str] | None = None) -> int:
     setup_logging(args.verbose)
 
     manifest = load_manifest(args.feedback_dir)
-    items = [entry for entry in manifest.values() if entry.get("corrected_mask")]
+    items = [
+        entry for entry in manifest.values()
+        if entry.get("corrected_mask") and _entry_matches_view(entry, args.view)
+    ]
+    if args.view:
+        logger.info("Filtro de vista '%s' aplicado al manifest de feedback.", args.view)
     if not items:
         logger.error("No hay correcciones humanas guardadas.")
         return 1

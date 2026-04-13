@@ -348,8 +348,9 @@ class FeedbackApp:
 def build_items(images_dir: Path, masks_dir: Path, recursive: bool) -> list[Item]:
     items = []
     for image_path in iter_images(images_dir, recursive=recursive):
+        image_path = image_path.resolve()
         mask_path = masks_dir / f"{image_path.stem}_mask.png"
-        items.append(Item(image_path=image_path, mask_path=mask_path if mask_path.is_file() else None))
+        items.append(Item(image_path=image_path, mask_path=mask_path.resolve() if mask_path.is_file() else None))
     return items
 
 
@@ -371,6 +372,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     setup_logging(args.verbose)
+    args.images = args.images.resolve()
+    args.masks = args.masks.resolve()
+    args.feedback_dir = args.feedback_dir.resolve()
     items = build_items(args.images, args.masks, recursive=args.recursive)
     if not items:
         logger.error("No se encontraron imágenes para revisar.")

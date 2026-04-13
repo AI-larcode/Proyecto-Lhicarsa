@@ -78,6 +78,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--resegment-output", type=Path, default=REPO_ROOT / "artifacts" / "segmentacion" / "resultados_iter")
     p.add_argument("--classifier-output", type=Path, default=REPO_ROOT / "models" / "classification" / "modelo_revision_iter.joblib")
     p.add_argument("--classifier-report", type=Path, default=REPO_ROOT / "artifacts" / "reports" / "report_revision_iter.json")
+    p.add_argument("--view", type=str, default="Frontal",
+                   help="Procesar solo imágenes de esta vista (Frontal/Izq/Der). "
+                        "Por defecto solo se procesan imágenes frontales.")
     p.add_argument("--copy-images", action="store_true",
                    help="Copia imágenes al dataset YOLO en lugar de usar enlaces simbólicos.")
     p.add_argument("--recursive", action="store_true")
@@ -104,6 +107,8 @@ def main(argv: list[str] | None = None) -> int:
             "--output", str(args.dataset_output),
             "--seed", str(args.seed),
         ]
+        if args.view:
+            cmd.extend(["--view", args.view])
         if args.recursive:
             cmd.append("--recursive")
         if args.copy_images:
@@ -139,6 +144,8 @@ def main(argv: list[str] | None = None) -> int:
             "--output", str(args.resegment_output),
             "--features", str(args.resegment_output / "features.csv"),
         ]
+        if args.view:
+            cmd.extend(["--view", args.view])
         if args.recursive:
             cmd.append("--recursive")
         run_step(cmd, root)
@@ -147,11 +154,12 @@ def main(argv: list[str] | None = None) -> int:
         cmd = [
             py, str(TRAIN_CLASSIFIER_SCRIPT),
             "--features", str(args.resegment_output / "features.csv"),
-            "--one-hot-view",
             "--one-hot-type",
             "--output", str(args.classifier_output),
             "--report-json", str(args.classifier_report),
         ]
+        if args.view:
+            cmd.extend(["--view", args.view])
         run_step(cmd, root)
 
     logger.info("Iteración completada.")
