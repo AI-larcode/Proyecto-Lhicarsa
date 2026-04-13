@@ -1,0 +1,6 @@
+path: /home/pyros05/Escritorio/Proyecto-Lhicarsa/data/datasets/ruedas_yolo_iter
+train: images/train
+val: images/val
+test: images/test
+names:
+  0: rueda

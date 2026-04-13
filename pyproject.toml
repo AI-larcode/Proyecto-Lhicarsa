@@ -1,12 +1,17 @@
 [project]
 name = "lhicarsa"
 version = "0.1.0"
-description = "Add your description here"
+description = "Segmentacion de ruedas, feedback humano y clasificacion de revision de presion"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "joblib>=1.5.3",
+    "jupyter>=1.1.1",
     "matplotlib>=3.10.8",
     "opencv-python>=4.13.0.90",
     "pandas>=3.0.0",
+    "pillow>=11.3.0",
+    "scikit-learn>=1.8.0",
     "scipy>=1.17.0",
+    "ultralytics>=8.4.37",
 ]

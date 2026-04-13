@@ -1,11 +1,15 @@
 # Entorno virtual de uv
 .venv/
 
-# Archivos de datos y comprimidos (Ignorados por peso/privacidad)
-dataset_ruedas.csv
+# Archivos de datos, modelos y artefactos (ignorados por peso/privacidad)
+data/images/
+data/feedback/
+data/tabular/
+artifacts/
+experiments/
+models/base/
+models/classification/
 *.zip
-Lhicarsa_imagenes/
-resultados/
 
 # Python cache
 __pycache__/
@@ -13,3 +17,4 @@ __pycache__/
 
 # Otros
 .DS_Store
+.ipynb_checkpoints/
